@@ -1,0 +1,99 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>MC3D</title><link rel="stylesheet" href="style.css"></head><body data-page="profile"><div class="layout"><aside class="sidebar" id="sidebar"></aside><div class="content"><div class="topbar"><h1>My <span>Profile</span></h1><div class="user">Signed in as <b class="username"></b></div></div><main><div class="grid2">
+  <div class="card info"><h2>Account Information</h2>
+    <p><span class="k">Employee ID</span><b id="pId"></b></p>
+    <p><span class="k">Name</span><b id="pName"></b></p>
+    <p><span class="k">Position</span><span class="badge" id="pPos"></span></p>
+    <p id="ageLine"><span class="k">Age</span><b id="pAge"></b></p>
+  </div>
+  <div class="card" id="attCard"><h2>Today's Attendance</h2>
+    <div class="btn-row"><button onclick="timeIn()">Time In</button><button onclick="timeOut()">Time Out</button></div>
+    <p id="todayInfo" class="user"></p><p id="attMsg" class="msg"></p>
+  </div>
+  <div class="card"><h2>Edit Profile</h2>
+    <label for="eName">Name</label><input id="eName"><br>
+    <div id="ageField"><label for="eAge">Age</label><input id="eAge" type="number" min="18" max="80"><br></div>
+    <button onclick="saveProfile()">Save Changes</button><p id="profileMsg" class="msg"></p>
+  </div>
+  <div class="card"><h2>Change Password</h2>
+    <label for="curPw">Current Password</label><input id="curPw" type="password"><br>
+    <label for="newPw">New Password</label><input id="newPw" type="password"><br>
+    <label for="conPw">Confirm New Password</label><input id="conPw" type="password"><br>
+    <button onclick="changePassword()">Update Password</button><p id="pwMsg" class="msg"></p>
+  </div>
+</div></main></div></div>
+<script src="app.js"></script>
+<script>
+var myId = sessionStorage.getItem("mc3d_id");
+var isManager = (role === "manager");
+
+function myIndex() {
+  var list = getEmployees();
+  for (var i = 0; i < list.length; i++) if (list[i].id === myId) return i;
+  return -1;
+}
+function showProfile() {
+  var name = sessionStorage.getItem("mc3d_user"), pos = "Manager", age = "";
+  if (!isManager) { var e = getEmployees()[myIndex()]; name = e.name; pos = e.position; age = e.age; }
+  document.getElementById("pId").textContent = myId;
+  document.getElementById("pName").textContent = name;
+  document.getElementById("pPos").textContent = pos;
+  document.getElementById("pAge").textContent = age;
+  document.getElementById("eName").value = name;
+  document.getElementById("eAge").value = age;
+  if (isManager) {
+    document.getElementById("ageLine").style.display = "none";
+    document.getElementById("ageField").style.display = "none";
+    document.getElementById("attCard").style.display = "none";
+  } else showToday();
+}
+function saveProfile() {
+  var name = document.getElementById("eName").value.trim();
+  if (name === "") { msg("profileMsg", "Name is required.", "error"); return; }
+  if (isManager) {
+    localStorage.setItem("mc3d_manager_name", name);
+  } else {
+    var age = document.getElementById("eAge").value.trim();
+    if (isNaN(age) || age === "" || Number(age) < 18 || Number(age) > 80) { msg("profileMsg", "Age must be between 18 and 80.", "error"); return; }
+    var list = getEmployees();
+    list[myIndex()].name = name;
+    list[myIndex()].age = Number(age);
+    localStorage.setItem(DB_KEY_EMP, JSON.stringify(list));
+  }
+  sessionStorage.setItem("mc3d_user", name);
+  var els = document.querySelectorAll(".username");
+  for (var i = 0; i < els.length; i++) els[i].textContent = name;
+  showProfile();
+  msg("profileMsg", "Profile updated!", "ok");
+}
+function changePassword() {
+  var cur = document.getElementById("curPw").value, np = document.getElementById("newPw").value, cp = document.getElementById("conPw").value;
+  if (cur !== getPassword(myId)) { msg("pwMsg", "Current password is incorrect.", "error"); return; }
+  if (np.length < 6) { msg("pwMsg", "New password must be at least 6 characters.", "error"); return; }
+  if (np !== cp) { msg("pwMsg", "Passwords do not match.", "error"); return; }
+  setPassword(myId, np);
+  document.getElementById("curPw").value = document.getElementById("newPw").value = document.getElementById("conPw").value = "";
+  msg("pwMsg", "Password changed!", "ok");
+}
+function todayRecord(recs) {
+  for (var i = 0; i < recs.length; i++) if (recs[i].id === myId && recs[i].date === today()) return recs[i];
+  return null;
+}
+function showToday() {
+  var r = todayRecord(getAttendance());
+  document.getElementById("todayInfo").textContent = r ? "Time In: " + r.timeIn + "   |   Time Out: " + (r.timeOut || "-") : "No time in recorded today.";
+}
+function timeIn() {
+  var recs = getAttendance();
+  if (todayRecord(recs)) { msg("attMsg", "You already timed in today.", "error"); return; }
+  recs.push({ id: myId, date: today(), timeIn: timeNow(), timeOut: "" });
+  saveAttendance(recs); showToday(); msg("attMsg", "Timed in!", "ok");
+}
+function timeOut() {
+  var recs = getAttendance(), r = todayRecord(recs);
+  if (!r) { msg("attMsg", "Please time in first.", "error"); return; }
+  if (r.timeOut) { msg("attMsg", "You already timed out today.", "error"); return; }
+  r.timeOut = timeNow();
+  saveAttendance(recs); showToday(); msg("attMsg", "Timed out!", "ok");
+}
+showProfile();
+</script></body></html>

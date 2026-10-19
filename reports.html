@@ -1,0 +1,24 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>MC3D</title><link rel="stylesheet" href="style.css"></head><body data-page="reports" data-role="manager"><div class="layout"><aside class="sidebar" id="sidebar"></aside><div class="content"><div class="topbar"><h1>Manager <span>Reports</span></h1><div class="user">Signed in as <b class="username"></b></div></div><main><div class="stats">
+  <div class="stat"><b id="rTotal">0</b><small>Total Employees</small></div>
+  <div class="stat"><b id="rPresent">0</b><small>Present Today</small></div>
+  <div class="stat"><b id="rAbsent">0</b><small>Absent Today</small></div>
+</div>
+<div class="grid2">
+  <div class="card"><h2>Employees by Position</h2><div id="byPosition"></div></div>
+  <div class="card"><h2>Recent Attendance</h2>
+    <div class="table-wrap"><table><thead><tr><th>ID</th><th>Date</th><th>In</th><th>Out</th></tr></thead><tbody id="history"></tbody></table></div></div>
+</div></main></div></div>
+<script src="app.js"></script>
+<script>
+var emps = getEmployees(), recs = getAttendance(), present = 0, counts = {}, html = "", rows = "";
+for (var i = 0; i < recs.length; i++) if (recs[i].date === today()) present++;
+for (var j = 0; j < emps.length; j++) counts[emps[j].position] = (counts[emps[j].position] || 0) + 1;
+for (var p in counts) html += '<div class="bar-row"><span>' + safe(p) + '</span><div class="bar" style="width:' + counts[p] * 60 + 'px"></div><b>' + counts[p] + "</b></div>";
+var last = recs.slice(-8).reverse();
+for (var k = 0; k < last.length; k++) rows += "<tr><td>" + safe(last[k].id) + "</td><td>" + last[k].date + "</td><td>" + last[k].timeIn + "</td><td>" + (last[k].timeOut || "-") + "</td></tr>";
+document.getElementById("rTotal").textContent = emps.length;
+document.getElementById("rPresent").textContent = present;
+document.getElementById("rAbsent").textContent = Math.max(emps.length - present, 0);
+document.getElementById("byPosition").innerHTML = html || '<p class="empty">No data.</p>';
+document.getElementById("history").innerHTML = rows || '<tr><td colspan="4" class="empty">No attendance yet.</td></tr>';
+</script></body></html>

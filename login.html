@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MC3D Login</title><link rel="stylesheet" href="style.css"></head>
+<body data-page="login">
+<div class="login">
+  <div class="brand"><div class="logo">MC<span>3D</span></div><p>Internet Cafe Employee Information Management System</p></div>
+  <div class="box">
+    <form onsubmit="return doLogin()">
+      <h2>Login</h2>
+      <p class="hint">Manager: manager / mc3d123<br>Employee: Employee ID (e.g. E002) / mc3d123</p>
+      <div class="field"><label for="who">Login as</label>
+        <select id="who"><option value="manager">Manager</option><option value="employee">Employee</option></select></div>
+      <div class="field"><label for="user">Username / Employee ID</label><input id="user" type="text"></div>
+      <div class="field"><label for="pass">Password</label><input id="pass" type="password"></div>
+      <button type="submit">Login</button>
+      <p id="output" class="msg error"></p>
+    </form>
+  </div>
+</div>
+<script src="app.js"></script>
+<script>
+function doLogin() {
+  var who = document.getElementById("who").value;
+  var u = document.getElementById("user").value.trim();
+  var p = document.getElementById("pass").value;
+
+  if (who === "manager" && u === "manager" && p === getPassword("manager")) {
+    sessionStorage.setItem("mc3d_role", "manager");
+    sessionStorage.setItem("mc3d_id", "manager");
+    sessionStorage.setItem("mc3d_user", localStorage.getItem("mc3d_manager_name") || "Manager");
+    window.location.href = "index.html";
+    return false;
+  }
+  if (who === "employee") {
+    var list = getEmployees();
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id.toLowerCase() === u.toLowerCase() && p === getPassword(list[i].id)) {
+        sessionStorage.setItem("mc3d_role", "employee");
+        sessionStorage.setItem("mc3d_id", list[i].id);
+        sessionStorage.setItem("mc3d_user", list[i].name);
+        window.location.href = "profile.html";
+        return false;
+      }
+    }
+  }
+  document.getElementById("output").textContent = "Invalid login details.";
+  return false;
+}
+</script>
+</body></html>

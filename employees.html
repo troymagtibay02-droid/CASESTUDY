@@ -1,0 +1,27 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>MC3D</title><link rel="stylesheet" href="style.css"></head><body data-page="employees" data-role="manager"><div class="layout">
+<aside class="sidebar" id="sidebar"></aside>
+<div class="content"><div class="topbar"><h1>Manage <span>Employees</span></h1><div class="user">Signed in as <b class="username"></b></div></div><main>
+<!-- ===== EMPLOYEE FORM ===== -->
+<div class="card">
+  <h2>Add Employee</h2>
+  <div class="form-grid">
+    <div><label for="id">Employee ID</label><input type="text" id="id" placeholder="e.g. E001"></div>
+    <div><label for="name">Employee Name</label><input type="text" id="name" placeholder="Full name"></div>
+    <div><label for="age">Employee Age</label><input type="number" id="age" min="18" max="80" placeholder="Age"></div>
+    <div><label for="position">Position</label><input type="text" id="position" placeholder="e.g. Cashier"></div>
+  </div><br>
+  <button id="addBtn" onclick="addrecords()">Add Employee</button>
+  <button id="cancelBtn" onclick="resetForm()">Cancel</button>
+  <p id="output"></p>
+</div>
+<!-- ===== EMPLOYEE RECORDS TABLE ===== -->
+<div class="card">
+  <div class="row"><h2>Employee Records</h2><input type="text" id="search" placeholder="Search..." oninput="displayEmployees()"></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Employee ID</th><th>Employee Name</th><th>Age</th><th>Position</th><th>Action</th></tr></thead>
+    <tbody id="employeeTable"></tbody>
+  </table></div>
+</div>
+</main></div></div>
+<script src="app.js"></script>
+<script src="employees.js"></script></body></html>

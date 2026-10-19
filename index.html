@@ -1,0 +1,36 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>MC3D</title><link rel="stylesheet" href="style.css"></head><body data-page="dashboard" data-role="manager"><div class="layout">
+<aside class="sidebar" id="sidebar"></aside>
+<div class="content"><div class="topbar"><h1>Manager <span>Dashboard</span></h1><div class="user">Signed in as <b class="username"></b></div></div><main>
+<div class="stats">
+  <div class="stat"><b id="totalEmployees">0</b><small>Total Employees</small></div>
+  <div class="stat"><b id="totalPositions">0</b><small>Different Positions</small></div>
+  <div class="stat"><b id="averageAge">0</b><small>Average Age</small></div>
+  <div class="stat"><b id="presentToday">0</b><small>Present Today</small></div>
+</div>
+<div class="card">
+  <div class="row"><h2>Recent Employees</h2><a class="btn" href="employees.html">Manage Employees</a></div>
+  <div class="table-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Position</th></tr></thead><tbody id="recent"></tbody></table></div>
+</div>
+</main></div></div>
+<script src="app.js"></script>
+<script>
+// Reads the SAME localStorage key used by employees.js
+var saved = JSON.parse(localStorage.getItem("mc3d_employees_db")) || [];
+var positions = [], ageTotal = 0, rows = "";
+for (var i = 0; i < saved.length; i++) {
+  if (positions.indexOf(saved[i].position) === -1) positions.push(saved[i].position);
+  ageTotal += Number(saved[i].age);
+}
+var last = saved.slice(-5).reverse();
+for (var j = 0; j < last.length; j++) {
+  rows += "<tr><td>" + safe(last[j].id) + "</td><td>" + safe(last[j].name) + '</td><td><span class="badge">' + safe(last[j].position) + "</span></td></tr>";
+}
+function safe(t){var d=document.createElement("div");d.textContent=t;return d.innerHTML;}
+document.getElementById("totalEmployees").textContent = saved.length;
+document.getElementById("totalPositions").textContent = positions.length;
+document.getElementById("averageAge").textContent = saved.length ? Math.round(ageTotal / saved.length) : 0;
+var att = getAttendance(), present = 0;
+for (var a = 0; a < att.length; a++) if (att[a].date === today()) present++;
+document.getElementById("presentToday").textContent = present;
+document.getElementById("recent").innerHTML = rows || '<tr><td colspan="3" class="empty">No employees yet.</td></tr>';
+</script></body></html>

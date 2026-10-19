@@ -1,0 +1,24 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>MC3D</title><link rel="stylesheet" href="style.css"></head><body data-page="attendance" data-role="manager"><div class="layout"><aside class="sidebar" id="sidebar"></aside><div class="content"><div class="topbar"><h1>Employee <span>Attendance</span></h1><div class="user">Signed in as <b class="username"></b></div></div><main><div class="card">
+  <div class="row"><h2>Daily Attendance</h2><input type="date" id="date" style="max-width:200px" onchange="showAttendance()"></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Employee ID</th><th>Name</th><th>Position</th><th>Time In</th><th>Time Out</th><th>Status</th></tr></thead>
+    <tbody id="attTable"></tbody></table></div>
+</div></main></div></div>
+<script src="app.js"></script>
+<script>
+document.getElementById("date").value = today();
+function showAttendance() {
+  var date = document.getElementById("date").value;
+  var emps = getEmployees(), recs = getAttendance(), html = "";
+  for (var i = 0; i < emps.length; i++) {
+    var r = null;
+    for (var j = 0; j < recs.length; j++) if (recs[j].id === emps[i].id && recs[j].date === date) r = recs[j];
+    var status = r ? (r.timeOut ? "Completed" : "Present") : "Absent";
+    html += "<tr><td>" + safe(emps[i].id) + "</td><td>" + safe(emps[i].name) + "</td><td>" + safe(emps[i].position) +
+      "</td><td>" + (r ? r.timeIn : "-") + "</td><td>" + (r && r.timeOut ? r.timeOut : "-") +
+      '</td><td><span class="badge ' + (r ? "ok" : "bad") + '">' + status + "</span></td></tr>";
+  }
+  document.getElementById("attTable").innerHTML = html || '<tr><td colspan="6" class="empty">No employees yet.</td></tr>';
+}
+showAttendance();
+</script></body></html>
